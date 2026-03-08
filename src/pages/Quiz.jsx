@@ -12,6 +12,8 @@ function Quiz() {
   const [questions, setQuestions] = useState([]);
   const [current, setCurrent] = useState(0);
   const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(10);
+
 
   useEffect(() => {
 
@@ -25,6 +27,22 @@ function Quiz() {
       .catch(err => console.error(err));
 
   }, [category, difficulty]);
+
+  useEffect(() => {
+
+  if (timeLeft === 0) {
+    handleAnswer(null); 
+    return;
+  }
+
+  const timer = setTimeout(() => {
+    setTimeLeft(timeLeft - 1);
+  }, 1000);
+
+  return () => clearTimeout(timer);
+
+}, [timeLeft]);
+
 
   if (questions.length === 0) {
     return <h2>Chargement du quiz...</h2>;
@@ -49,6 +67,7 @@ function Quiz() {
 
     if (current + 1 < questions.length) {
       setCurrent(current + 1);
+      setTimeLeft(10);
     } else {
       navigate("/score", { state: { score: newScore } });
     }
@@ -60,6 +79,7 @@ function Quiz() {
       <h2>Question {current + 1} / 10</h2>
 
       <h3 dangerouslySetInnerHTML={{ __html: question.question }} />
+      <h3>Temps restant : {timeLeft}s</h3>
 
       {answers.map((a, i) => (
         <button
